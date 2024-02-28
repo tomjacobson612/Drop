@@ -2,6 +2,10 @@
 
 ## Tom Jacobson
 
+### Overview
+
+This code utilizes the built in accelerometer to display an exclamation point on the LED display and output a 1khz square wave while falling. When stationary a single dot will be displayed with no noise.
+
 ### Writeup
 
 This assignment came with a few challenges, the first big one being finding out the name of the accelerometer chip. Once I found the lsm303agr and it's corresponding crate, the next big challenge was to find out how to access the lsm303 in code. After some trial and error (and some help from referencing https://github.com/pdx-cs-rust-embedded/mb2-thermometer/blob/main/src/main.rs) I was able to initialize the sensor and pull readings from it.
