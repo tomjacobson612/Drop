@@ -8,17 +8,17 @@ use microbit::{
     board::Board,
     display::nonblocking::{Display, GreyscaleImage},
     hal::{
+        delay::Delay,
+        gpio::Level,
         pac::{self, interrupt, TIMER0},
         prelude::*,
         timer::Timer,
         twim,
-        delay::Delay,
-        gpio::Level
     },
     pac::twim0::frequency::FREQUENCY_A,
 };
 use panic_rtt_target as _;
-use rtt_target::{rtt_init_print};
+use rtt_target::rtt_init_print;
 
 static DISPLAY: LockMut<Display<TIMER0>> = LockMut::new();
 
