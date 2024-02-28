@@ -1,18 +1,17 @@
 #![no_std]
 #![no_main]
 
-use cortex_m_rt::entry;
+use panic_rtt_target as _;
+use rtt_target::rtt_init_print;
 use critical_section_lock_mut::LockMut;
 use lsm303agr::Lsm303agr;
 use microbit::{
     board::Board,
     display::nonblocking::{Display, GreyscaleImage},
     hal::{
-        delay::Delay,
-        gpio::Level,
-        pac::{self, interrupt, TIMER0, TIMER1},
-        prelude::*,
-        timer::Timer,
+        pac::{self, interrupt, TIMER0},
+        prelude::*, 
+        timer::Timer, 
         twim,
     },
     pac::twim0::frequency::FREQUENCY_A,
@@ -22,7 +21,7 @@ use rtt_target::{rprintln, rtt_init_print};
 
 static DISPLAY: LockMut<Display<TIMER0>> = LockMut::new();
 
-static dot: GreyscaleImage = GreyscaleImage::new(&[
+static DOT: GreyscaleImage = GreyscaleImage::new(&[
     [0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0],
     [0, 0, 9, 0, 0],
@@ -30,7 +29,7 @@ static dot: GreyscaleImage = GreyscaleImage::new(&[
     [0, 0, 0, 0, 0],
 ]);
 
-static exclamation: GreyscaleImage = GreyscaleImage::new(&[
+static EXCLAMATION: GreyscaleImage = GreyscaleImage::new(&[
     [0, 0, 9, 0, 0],
     [0, 0, 9, 0, 0],
     [0, 0, 9, 0, 0],
@@ -41,8 +40,9 @@ static exclamation: GreyscaleImage = GreyscaleImage::new(&[
 #[entry]
 fn main() -> ! {
     rtt_init_print!();
-    let mut timer2 = Timer::new(board.TIMER2);
+
     let mut board = Board::take().unwrap();
+    let mut timer2 = Timer::new(board.TIMER2);
     let display = Display::new(board.TIMER0, board.display_pins);
     DISPLAY.init(display);
 
@@ -73,19 +73,19 @@ fn main() -> ! {
     let threshold: f32 = 0.75;
 
     let mut total: f32 = 0.0;
-    let mut x: f32 = 0.0;
-    let mut y: f32 = 0.0;
-    let mut z: f32 = 0.0;
+    let mut x: f32;
+    let mut y: f32;
+    let mut z: f32;
 
     loop {
         if sensor.accel_status().unwrap().xyz_new_data() {
             let data = sensor.acceleration().unwrap();
-
-            x = data.x_mg() as f32 / 1000.0; // Convert mg to g
+        
+            x = data.x_mg() as f32 / 1000.0; // Convert Mg to G's
             y = data.y_mg() as f32 / 1000.0;
             z = data.z_mg() as f32 / 1000.0;
-
-            total = x * x + y * y + z * z; // Calculate magnitude squared in g^2
+        
+            total = x * x + y * y + z * z; // Calculate magnitude squared in G^2
         }
 
         if total < threshold {
@@ -93,9 +93,10 @@ fn main() -> ! {
             delay.delay_us(500u16);
             speaker.set_low().unwrap();
             delay.delay_us(500u16);
-            DISPLAY.with_lock(|display| display.show(&exclamation));
-        } else {
-            DISPLAY.with_lock(|display| display.show(&dot));
+            DISPLAY.with_lock(|display| display.show(&EXCLAMATION));
+        }
+        else {
+            DISPLAY.with_lock(|display| display.show(&DOT));
         }
     }
 }
