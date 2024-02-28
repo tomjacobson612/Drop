@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 
+use cortex_m_rt::entry;
 use critical_section_lock_mut::LockMut;
 use lsm303agr::Lsm303agr;
 use microbit::{
@@ -11,13 +12,13 @@ use microbit::{
         prelude::*,
         timer::Timer,
         twim,
+        delay::Delay,
+        gpio::Level
     },
     pac::twim0::frequency::FREQUENCY_A,
 };
 use panic_rtt_target as _;
-use panic_rtt_target as _;
-use rtt_target::rtt_init_print;
-use rtt_target::{rprintln, rtt_init_print};
+use rtt_target::{rtt_init_print};
 
 static DISPLAY: LockMut<Display<TIMER0>> = LockMut::new();
 
