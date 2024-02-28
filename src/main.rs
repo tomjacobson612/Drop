@@ -1,8 +1,6 @@
 #![no_std]
 #![no_main]
 
-use panic_rtt_target as _;
-use rtt_target::rtt_init_print;
 use critical_section_lock_mut::LockMut;
 use lsm303agr::Lsm303agr;
 use microbit::{
@@ -10,13 +8,15 @@ use microbit::{
     display::nonblocking::{Display, GreyscaleImage},
     hal::{
         pac::{self, interrupt, TIMER0},
-        prelude::*, 
-        timer::Timer, 
+        prelude::*,
+        timer::Timer,
         twim,
     },
     pac::twim0::frequency::FREQUENCY_A,
 };
 use panic_rtt_target as _;
+use panic_rtt_target as _;
+use rtt_target::rtt_init_print;
 use rtt_target::{rprintln, rtt_init_print};
 
 static DISPLAY: LockMut<Display<TIMER0>> = LockMut::new();
@@ -80,11 +80,11 @@ fn main() -> ! {
     loop {
         if sensor.accel_status().unwrap().xyz_new_data() {
             let data = sensor.acceleration().unwrap();
-        
+
             x = data.x_mg() as f32 / 1000.0; // Convert Mg to G's
             y = data.y_mg() as f32 / 1000.0;
             z = data.z_mg() as f32 / 1000.0;
-        
+
             total = x * x + y * y + z * z; // Calculate magnitude squared in G^2
         }
 
@@ -94,8 +94,7 @@ fn main() -> ! {
             speaker.set_low().unwrap();
             delay.delay_us(500u16);
             DISPLAY.with_lock(|display| display.show(&EXCLAMATION));
-        }
-        else {
+        } else {
             DISPLAY.with_lock(|display| display.show(&DOT));
         }
     }
